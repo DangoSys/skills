@@ -1,2 +1,3 @@
 # skills
-Skills helps you develop with buckyball
+
+Skills help you develop with buckyball.
