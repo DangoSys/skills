@@ -26,4 +26,4 @@ if [[ "$found" -eq 0 ]]; then
   exit 1
 fi
 
-npx --yes skills add "$skills" -a cursor -a codex -y --skill '*'
+npx --yes skills add "$skills" -a cursor -a codex -a claude-code -g -y --skill '*'
