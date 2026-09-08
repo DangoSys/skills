@@ -18,3 +18,5 @@ npx skills add DangoSys/skills
 | `check` | Ball registration consistency check |
 | `verify` | Ball functional verification (build → sim → PMC) |
 | `waveform` | Waveform analysis via `waveform-mcp` |
+| `repo-install` | Repository setup with network/proxy handling |
+| `programming-principles` | Practical principles for implementation and review |

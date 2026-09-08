@@ -1,48 +1,31 @@
 ---
 name: verify
-description: Verify functional correctness of the Ball named $ARGUMENTS. Use this skill when users ask to verify/test a Ball, check whether a Ball works correctly, or validate a newly created Ball.
+description: Verify functional correctness of a Buckyball Ball. Use when users ask to test a Ball, validate a completed Ball change, compare BEMU and RTL behavior, or collect Ball performance evidence. Use project MCP tools for builds and simulation.
 ---
 
-**Important: build, simulation, and test operations must be invoked via MCP tools from project `.mcp.json`. Do not call bbdev CLI or nix develop directly. If `buckyball-dev` is not loaded, stop and report it.**
+# Ball Verification
 
-## Phase 1 - Completeness Check
+Use this skill to verify existing work. Report missing implementation, registration, ISA, workload, or UVM artifacts; do not create them unless the user asks for implementation.
 
-Use `/check` logic to validate registration consistency, then ensure all required artifacts exist and fill missing pieces:
-1. Ball implementation: `examples/balls/<name>/arch/src/main/scala/`
-2. Registration entry in chip balldomain TOML under `examples/chips/<chip>/configs/tiles/cores/balldomains/`
-3. ISA macro file in `examples/balls/<ball>/workloads/isa/` (base ISA under `bb-tests/workloads/lib/bbhw/isa/`)
-4. CTest for that ball/chip
+## Preconditions
 
-## Phase 2 - Build and Simulate
+1. Run `validate(chip=..., balldomain?=...)` through MCP.
+2. Confirm the Ball implementation under `examples/balls/<ball>/arch/src/main/scala/`, its selected core registration under `examples/cores/<core>/configs/balldomains/`, and the relevant workload/ISA files exist.
+3. Identify the exact workload binary and target chip. The chip's Verilator configuration is selected by `examples/chips/<chip>/configs/chip.toml`; it is not a parameter to `bbdev_bebop_verilator_run`.
 
-1. Run `bbdev_workload_build(chip=...)` to build CTests
-2. Run `bbdev_bemu_sim(chip=..., binary=...)` first
-3. Run `bbdev_bebop_verilator_run(binary=..., config=...)` for RTL
-   - binary is `{chip}_{stem}-{platform}`, e.g. `toy_transpose_test-baremetal`
-   - config is required, e.g. `sims.verilator.BuckyballToyVerilatorConfig`
-4. If build/simulation fails, switch to `/debug` flow
+## Verification Order
 
-## Phase 3 - PMC Performance Analysis
+1. Submit `bbdev_workload_build(chip=...)`; poll `bbdev_task_status(trace_id)` until `success=true` and `returncode=0`.
+2. Submit `bbdev_bemu_sim(chip=..., binary=...)` for the focused test and poll it to completion.
+3. Submit `bbdev_bebop_verilator_run(chip=..., binary=...)` for the corresponding RTL test and poll it to completion. If the generated simulator already exists, `bbdev_bebop_verilator_sim(chip=..., binary=...)` is appropriate.
+4. When the Ball has UVM coverage and RTL is green, run `bbdev_uvm_run(chip=..., ball=...)` and poll it to completion.
 
-After simulation passes, analyze PMC traces from `bdb.log`:
+When BEMU passes and RTL fails, inspect the RTL timing and handshake behavior using `$waveform`; do not assume a missing debug skill.
 
-1. Locate log directory (`ls -t log/ | head -5`)
-2. Search `[PMCTRACE] BALL` entries in `bdb.log` and extract elapsed cycles for the target Ball
-3. Summarize:
-   - average elapsed cycles per task
-   - max/min elapsed cycles
-   - total invocation count
+## Performance Evidence
 
-## Phase 4 - Waveform Analysis (when simulation fails)
-
-If simulation fails, use waveform-mcp for precise timing analysis in addition to logs. See `/waveform`.
-
-Key signal checklist:
-- `cmdReq.valid && cmdReq.ready` (command handshake)
-- SRAM `req.valid/ready` and `resp.valid` (read/write timing)
-- FSM state register (state transitions)
-- `cmdResp.valid && cmdResp.fire` (completion handshake)
+Request `pmctrace=true` on the chosen Verilator simulation when needed, locate its log directory (normally containing `bdb.ndjson`), and extract `[PMCTRACE] BALL` records. Report invocation count and min, max, and mean `elapsed` cycles. Do not compare unrelated workloads or configurations.
 
 ## Failure Handling
 
-If simulation result is FAILED, run `/debug` for systematic troubleshooting.
+Keep the first actionable failure and its stage. Re-run only after a targeted fix, then repeat the previously failing case and the focused regression. Build, simulation, and test operations must use project `bbdev_*` MCP tools; do not call `bbdev` CLI or `nix develop -c bbdev` directly.

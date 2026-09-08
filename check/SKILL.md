@@ -1,44 +1,24 @@
 ---
 name: check
-description: Staticaly validate Buckyball Ball registration consistency and optionally auto-fix mismatches. Use this skill when users ask to inspect registration status, validate Ball configuration, troubleshoot registration issues, or verify consistency after registration edits.
+description: Validate Buckyball Ball registration consistency. Use when users ask to inspect registration status, validate a BallDomain configuration, troubleshoot registration issues, or check a registration change.
 ---
 
-## Validation Flow
+# Registration Check
 
-Call MCP tool `validate(chip=..., balldomain?=...)`.
+Call MCP tool `validate(chip=..., balldomain?=...)`. Default `chip` is `toy`.
 
-Default `chip=toy`. If `balldomain` is omitted, uses the file referenced by
-`examples/chips/<chip>/configs/tiles/cores/default.toml` (`balldomain = ...`).
-You can also pass a stem such as `default` / `full`.
+The tool resolves the selected BallDomain from the chip's generated topology. Registrations live under `examples/cores/<core>/configs/balldomains/`, not under the chip directory. The current implementation requires the chip to resolve to one unique topology core; for heterogeneous chips, validate each core's BallDomain explicitly. Pass a stem such as `default` or a `.toml` path only when selecting a non-default domain.
 
-Checks on that TOML:
+Report the tool's pass/fail result for:
 
-1. `ballNum` equals `ballIdMappings` length
-2. `ballId` is strictly increasing (`0, 1, 2, ...`) with no gaps
-3. no duplicated `ballId` / `ballName`
-4. no duplicated `funct7` / `mnemonic` in `ballISA` (scope = this single balldomain / core; other cores may reuse the same funct7)
-5. every `ballISA.bid` exists in mappings; every ball has ≥1 ISA entry
-6. relative `config=` paths exist; `inBW`/`outBW` are positive
-7. ball ISA headers / MLIR must not hardcode ball `funct7` (encoding is generated from this TOML into `examples/cores/<core>/isa/ballISA.h`)
+1. `ballNum` equals `ballIdMappings` length.
+2. `ballId` is exactly `0, 1, 2, ...` with no duplicates or gaps.
+3. `ballName`, `funct7`, and mnemonic are unique within this BallDomain.
+4. Each ISA `bid` exists and every Ball has at least one ISA entry.
+5. Each Ball config path exists and `inBW`/`outBW` are positive.
 
-Report pass/fail for each item.
+Expand each Ball's nested `isa` entries into a summary table with `ballId`, `ballName`, `funct7`, `mnemonic`, `inBW`, `outBW`, and `config`.
 
-## Registration Summary
+`validate` does not scan source headers or MLIR for hardcoded encodings. When that check is needed, inspect the relevant Ball/compiler sources separately and report it as a distinct result.
 
-After validation, print the `balls` array from the tool result as a table:
-
-| ballId | ballName | funct7 | mnemonic | inBW | outBW | config |
-|--------|----------|--------|----------|------|-------|--------|
-
-Data source: `examples/chips/<chip>/configs/tiles/cores/balldomains/*.toml`
-
-## Auto Fix
-
-If validation finds inconsistencies and they are deterministic to fix, ask whether to auto-fix:
-
-1. **`ballNum` mismatch** — set `ballNum` to `ballIdMappings` length
-2. **non-contiguous `ballId`** — renumber to `0, 1, 2, ...` and sync `ballISA.bid`
-3. **missing ISA row** — add a `ballISA` entry for the orphan `ballId`
-4. **broken `config=` path** — fix the relative path to the ball's config toml
-
-For non-auto-fixable issues (for example, `funct7` conflicts), provide root-cause analysis and manual fix guidance.
+Do not edit registration files during a check. For a deterministic correction, explain the proposed change and request permission before modifying TOML; treat adding an ISA row or renumbering `ballId` as a semantic change, not an automatic fix.
