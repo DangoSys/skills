@@ -1,39 +1,91 @@
 ---
 name: ball-align
-description: Align a Buckyball Ball's C tests, BEMU behavior, compiler lowering, MLIR tests, RTL, and UVM to one explicit contract. Use when a Ball semantic change spans layers, BEMU and RTL disagree, ISA fields are renamed, or tests must be synchronized after a contract change.
+description: >
+  Align a Buckyball Ball across the full stack (ctest → bemu → compiler → MLIR → RTL → UVM)
+  to one contract. Use when the user asks for Ball alignment / contract sync, when bemu and
+  Verilator/RTL disagree, when renaming ISA fields, or when extending tests after a Ball
+  semantic change. Source of truth: docs/superpowers/ball-dev-guide.md.
 ---
 
-# Ball Alignment
+**Important:** build/sim only via MCP from `.mcp.json` (`validate`, `bbdev_workload_*`, `bbdev_bemu_*`, `bbdev_bebop_verilator_*` / `bbdev_verilator_*`, `bbdev_uvm_*`). Do not call `bbdev` CLI or `nix develop -c bbdev` directly. If `buckyball-dev` is missing, stop and report it.
 
-Treat the documented C test semantics as the functional reference. Keep BEMU, compiler lowering, MLIR, RTL, and UVM consistent with the same explicit contract.
+Gold = **ctest semantics**. bemu / compiler / RTL / UVM must share the same contract. Test env is **fail-hard**: illegal inputs panic/assert at every layer; no soft defaults or fallbacks.
 
-## Contract First
+Canonical guide: `docs/superpowers/ball-dev-guide.md`. This skill is the executable alignment workflow.
 
-Before editing, identify:
+## Phase 0 - Lock the contract (before any code)
 
-1. ISA fields and their source of truth.
-2. Element width, address calculation, and per-iteration read/write footprint.
-3. Valid inputs, invalid inputs, and the required failure behavior.
-4. Output layout, including packing and zero-fill behavior.
-5. Every affected consumer: ISA macro, emulator, compiler lowering, MLIR test, C test, RTL, UVM, and regression list.
+Write down and confirm with the user (stop if any item is missing):
 
-Do not leave a field with multiple meanings or preserve a compatibility fallback that hides an invalid input. Derive address and capacity limits from the active configuration and bank row width.
+1. ISA fields and shape sources (mset / instruction)
+2. Element width and per-`iter` read/write footprint
+3. Illegal-input table (same checks at every layer)
+4. Output layout (tile / dense-pack / zero-fill)
+5. Names match semantics (e.g. col vs group); renames must update ISA macros, emu, compiler, ctest, and regression tomls together
 
-## Align and Verify
+Hard rules:
 
-1. Use `$check` to validate the selected registration before and after registration work.
-2. Compare expected output and rejection behavior at every changed layer. Search source separately for encoding literals; `validate` checks TOML only.
-3. Keep compiler stages distinct: Bank operation, physical-bank assignment, Ball operation, then instruction lowering.
-4. Add or update focused C/MLIR/UVM cases in the layer that owns the contract. Place Ball-local tests under `examples/balls/<ball>/workloads/`; add supported workloads to the target chip's regression TOML.
-5. Use `$verify` for the BEMU then RTL verification sequence. Use `$waveform` only when timing evidence is required.
+- **Register new Balls in the `toy` core only.** `toy` is the maintenance/scratchpad core for new and experimental Balls. Production cores (`pebble`, `goban`, `prefill`, `decode`, `rocket`) have their own fixed, meaningful Ball sets — never add a new Ball to them. A task that asks to add a Ball targets `toy` by default; picking another core needs an explicit, user-approved reason.
+- Delete dead fields or give them one meaning immediately; do not leave "for later"
+- Addressing follows **mvin/mvout / bank row width**; no invented strides (common bug: treating a 16B row as 64B)
+- Capacity (`max*`, bank depth): use measurable bounds from the current config; do not raise limits before small tests are green
 
-## RTL Checks
+## Phase 1 - Inventory by layer
 
-- Capture command fields on `cmdReq.fire`.
-- Respect one-cycle SRAM read latency from request handshake to response.
-- Keep `status.idle` and `status.running` consistent with the state machine.
-- Use explicit Chisel widths and prevent in-place writes that can overwrite unread source data.
+Against `examples/balls/<name>/` and the target chip, list gaps:
 
-## Delivery
+| Kind | Content | Where to run |
+|------|---------|--------------|
+| Small tests | Short shapes, hand vectors, edge/illegal | bemu + Verilator |
+| Bank tests | `iter≈BANK_LINES`, `srand`/`rand`; soft numeric may report LOSS | **bemu only** |
+| Integration tests | Real consumers; must update on contract changes | bemu; small paths may use Verilator |
+| MLIR | Under `examples/balls/<name>/workloads/mlir_tests/`; **not** under chip | FileCheck + mlirtest ELF → bemu regression |
+| UVM | Stimulus/scoreboard on the same contract | **After RTL is green** |
 
-Report the contract, changed layers, focused test evidence, and remaining unsupported coverage. Build and simulation use project `bbdev_*` MCP tools only; poll submitted tasks to terminal success.
+- MLIR: keep `bank` Op and lowered `ball` Op separate (see transpose: contract + mlirtest)
+- New ctest / mlirtest → chip **bemu** `workloads-elf.toml` + `workloads-pk.toml`
+- Verilator lists take **small tests only**, not bank tests
+
+## Phase 2 - One semantics across the stack
+
+Check each layer. Any fork is a **bug** — do not change semantics for one layer alone:
+
+1. C expected / bemu / RTL / scoreboard share output layout
+2. Same legal/illegal checks at every layer
+3. Compiler: bank Op → assign-physical-banks → ball Op → intr; keep lit files per layer, do not mix
+
+Pass `validate(chip=..., balldomain?=...)` before continuing.
+
+## Phase 3 - RTL alignment checklist
+
+- Params from toml / BallParam; `require` ties to `bankWidth` / `inBW` / `outBW`
+- Latch fields on `cmdReq.fire`; SRAM read latency is 1 cycle; `status.idle/running` match the FSM
+- Explicit Chisel widths (`+&`, wide enough `UInt`); hard-block in-place same-bank writes that destroy source data
+
+## Phase 4 - Verification order (do not skip)
+
+1. `bbdev_workload_build(chip=...)`
+2. Small suite + bank tests via `bbdev_bemu_sim` / `bbdev_bemu_batch` — if bemu is red, fix **contract / tests / emu only**; do not touch RTL
+3. Verilator **small tests** via `bbdev_bebop_verilator_sim` (or non-bebop `bbdev_verilator_sim`) — bemu green + Verilator red → RTL/timing; use `/waveform` + `/debug`
+4. After fixes, re-run the full small suite plus previously failing edges; PMC from `bdb.ndjson` / `bdb.log` `pmctrace` (`elapsed`)
+5. Sync integration tests; UVM only after RTL small tests are green
+
+Full Verilator builds often MCP-timeout: check whether the server is still compiling; if binary/marker is ready, call `*_sim` directly.
+
+## Phase 5 - Minimum delivery checklist
+
+Copy and tick:
+
+```
+- [ ] Contract (fields, shapes, illegal table) + validate pass
+- [ ] Small suite bemu green; bank tests bemu green
+- [ ] bank/ball MLIRTest + listed in bemu regression
+- [ ] RTL aligned + Verilator small tests green
+- [ ] Integration tests synced; UVM (after RTL)
+```
+
+## Engineering constraints
+
+- Comments and prints in English; KISS; no fallbacks that hide bugs
+- On baremetal, avoid builtins that pull missing symbols
+- Keep chip configs and regression tomls consistent
