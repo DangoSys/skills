@@ -15,6 +15,7 @@ npx skills add DangoSys/skills
 |-------|-----|
 | `ball-align` | Align a Ball across ctest / bemu / compiler / MLIR / RTL / UVM to one contract |
 | `chip-designer` | Lead a new chip: topology, subgraph cut, contracts; do not implement cores |
+| `ip-designer` | Develop reusable IP: Chisel hierarchy, shared parameters, top export, UVM reuse, and coverage closure |
 | `check` | Ball registration consistency check |
 | `verify` | Ball functional verification (build → sim → PMC) |
 | `waveform` | Waveform analysis via `waveform-mcp` |

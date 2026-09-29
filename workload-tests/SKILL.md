@@ -86,9 +86,7 @@ layout, data pattern, or boundary it proves, for example
   A workload file name must be unique under `bb-tests/output`. The runner scans
   that output root and fails if the name is missing or has multiple matches.
   Do not use `search_path`, paths in the manifest, per-workload `pk`/trace
-  flags, or a separate rushB maintenance manifest. Backend selection and
-  tracing belong to the runner; rushB is an auxiliary execution mode over the
-  same workload set.
+  flags. Backend selection and tracing belong to the runner.
 - Add small CTests and BallOps to Verilator manifests. Add BankOps to BEMU
   manifests. Add core/chip tests to every backend that actually supports that
   chip; do not claim coverage through stale or non-existent artifacts.

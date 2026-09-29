@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball IP Designer"
+  short_description: "Design and verify reusable Buckyball hardware IP"
+  default_prompt: "Use $ip-designer to develop this Buckyball IP with the repository's Chisel hierarchy, shared verification components, and reviewed coverage closure."
