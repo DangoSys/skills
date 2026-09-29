@@ -26,4 +26,5 @@ if [[ "$found" -eq 0 ]]; then
   exit 1
 fi
 
-npx --yes skills add "$skills" -a cursor -a codex -a claude-code -g -y --skill '*'
+# Keep stdin readable for the non-interactive CLI's progress UI.
+npx --yes skills add "$skills" -a cursor -a codex -a claude-code -g -y --skill '*' < /dev/null
