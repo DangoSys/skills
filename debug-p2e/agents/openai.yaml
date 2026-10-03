@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball P2E Debug"
+  short_description: "Debug FPGA builds, boot, runtime, and model execution"
+  default_prompt: "Use $debug-p2e to diagnose a Buckyball P2E build, boot, or model execution failure."

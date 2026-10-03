@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball Verilator Debug"
+  short_description: "Debug small RTL cases using diff and execution traces"
+  default_prompt: "Use $debug-verilator to diagnose a small Buckyball RTL mismatch with diff and execution traces."

@@ -81,8 +81,9 @@ After Stage 2 is green:
 - Verilator lists take **small tests only**, not bank tests.
 
 **Gate:** Verilator **small tests** green (`bbdev_bebop_verilator_sim`, or
-non-bebop `bbdev_verilator_sim`). BEMU green + Verilator red → RTL/timing; use
-`$waveform` / `$debug`. Full Verilator builds often MCP-timeout: check whether
+non-bebop `bbdev_verilator_sim`). Enable diff on the first small RTL run. BEMU
+green + Verilator red → use `$debug-verilator`: diff, then itrace/mtrace on
+failure; waveform only as a last resort. Full Verilator builds often MCP-timeout: check whether
 the server is still compiling and call `*_sim` directly once the binary/marker is ready.
 
 ## Stage 4 — PPA + UVM verification
@@ -91,11 +92,12 @@ After Stage 3 is green:
 
 - Sync integration tests (real consumers; update on contract changes).
 - UVM: stimulus/scoreboard on the same contract — only after RTL small tests are green.
-- PPA: area/power/timing from the regression/eval flow; PMC from `bdb.ndjson` /
+- PPA: area/power/timing from the DC flow; PMC from `bdb.ndjson` /
   `bdb.log` `pmctrace` (`elapsed`).
 
 ## Delivery
 
 Report the contract, changed layers, per-stage evidence, and remaining unsupported
-coverage. Build and simulation use the project `bbdev_*` MCP tools only; poll
-submitted tasks to terminal success.
+coverage. Prefer project `bbdev_*` MCP tools and poll submitted tasks to terminal
+success. With user-authorized fallback for a broken MCP entry, use
+`nix develop -c bbdev`, inspect current help, and retain logs/exit status.

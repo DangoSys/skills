@@ -30,9 +30,9 @@ The current IP verification loader resolves `arch/src/main/scala/framework/mem-c
 - `src/csrc/`: Rust reference model and DPI binding, built through Cargo.
 - `src/main/resources/`: DUT wiring, IP-specific verification behavior, filelists, and reviewed exclusions.
 
-Keep one `Emit.scala` entrypoint. Export only the agreed verification tops, one SystemVerilog file per top, with required child module definitions in that file. Do not independently emit every internal module, use `--split-verilog`, or add wrappers solely for emission. The emitter directly constructs `new Top(p)`; child instantiation inside a module uses `Instantiate`.
+Keep one `Emit.scala` entrypoint. Export only the agreed verification tops and always pass `--split-verilog` to firtool, producing one SystemVerilog file per module. Put each top's split output in its own directory. Do not independently elaborate every internal module or add wrappers solely for emission. The emitter directly constructs `new Top(p)`; child instantiation inside a module uses `Instantiate`.
 
-Bank currently has two selected tops: `Bank` and `BankSet`. Other IPs need their own agreed set. Each testbench compiles its top's RTL file independently, avoiding duplicate module definitions from combining self-contained exports. Inspect the actual generated filenames and module hierarchy after changing exports.
+Bank currently has two selected tops: `Bank` and `BankSet`. Other IPs need their own agreed set. Each testbench compiles its selected top's generated RTL filelist, including all required child modules exactly once. Keep the UVM filelists and loader aligned with the split output directories. Inspect the generated filelists, filenames, and module hierarchy after changing exports.
 
 ## Reuse Verification Infrastructure
 
@@ -58,7 +58,7 @@ Filelists use `@VERIFY@`, `@RESOURCES@`, and `@RTL@`. Use project `bbdev_uvm_bui
 ## Close Coverage, Then Stop
 
 1. Establish the exact parameter configuration, DUT instance scope, metrics, and target. For the current Bank workflow, the agreed code metrics are line, condition, and toggle, with a 100% target after justified exclusions. Keep testbench/protocol coverage distinct from DUT code coverage.
-2. Check that the report actually contains DUT data. In an unsplit file, a generated SRAM `coverage exclude_file` directive can also exclude its parent DUT. Scope the memory-model exclusion correctly; missing metrics are not a coverage success.
+2. Keep generated SRAM models in separate split SystemVerilog files so their `coverage exclude_file` directives apply only to the memory models. Check that the report contains coverage data for the parent DUT and its intended child modules; missing metrics are not a coverage success.
 3. Inspect individual holes. Add or adjust stimulus for reachable behavior. Prefer adjusting existing scenarios over adding random iterations. Compare coverage before and after deleting potentially redundant stimulus; keep the deletion only when relevant coverage and checks remain intact.
 4. Waive only identified objects with a reason: constants, constraints of the legal-input contract, assertion-failure diagnostics outside the normal functional coverage scope, or conditions proven unreachable by the control structure. Distinguish environmental assumptions from design invariants. Do not waive an item simply because the current test never exercises it, and never exclude logic by generated names such as `_GEN`.
 5. For VCS, export candidates with URG `-dump full_exclusions`, then select the reviewed objects into a same-stem resource `.el` file. Preserve the tool-generated instance, metric checksum, object signature, and specific bit range or condition vector. Annotate each exclusion. Do not blanket-exclude an entire signal or expression when only part is justified.

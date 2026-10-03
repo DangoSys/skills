@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball BEMU Debug"
+  short_description: "Diagnose emulator and compiled-model numerical failures"
+  default_prompt: "Use $debug-bemu to diagnose a Buckyball BEMU numerical mismatch against its reference."

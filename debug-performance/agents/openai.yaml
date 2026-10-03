@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball Performance Debug"
+  short_description: "Find model bottlenecks and validate FPGA cycle gains"
+  default_prompt: "Use $debug-performance to locate and optimize a Buckyball model bottleneck using FPGA end-to-end cycles and bank reuse."

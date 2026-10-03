@@ -1,9 +1,14 @@
 ---
 name: waveform
-description: Analyze Buckyball VCD or FST waveforms with waveform-mcp. Use for cycle-level timing analysis, handshake debugging, FSM transition checks, SRAM latency checks, or other waveform-level evidence.
+description: Analyze Buckyball VCD or FST waveforms with waveform-mcp when waveform analysis is explicitly requested, or when diff and itrace/mtrace leave a specific timing question unresolved. Use debug-verilator or debug-p2e first for failure debugging.
 ---
 
 # Waveform Analysis
+
+For failure debugging, first follow `$debug-verilator` or `$debug-p2e`: enable
+diff on the initial focused run, then inspect itrace/mtrace when it fails.
+Waveforms are a last resort for a specific timing question those traces cannot
+answer. When the user explicitly requests waveform analysis, perform it directly.
 
 1. Locate a `.vcd` or `.fst` under the simulation log directory and open it with `open_waveform(file_path=...)`.
 2. Call `list_signals` before reading a path. Pass `recursive=true` or `recursive=false` explicitly; do not depend on the tool default. Signal hierarchy and Chisel-generated names vary by chip and build.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball Model Port"
+  short_description: "Port a model through chip design and P2E validation"
+  default_prompt: "Use $model-port to port a model to a Buckyball chip and verify it on P2E."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball Compiler Debug"
+  short_description: "Diagnose model graphs, layouts, and compiler failures"
+  default_prompt: "Use $debug-compiler to diagnose a Buckyball model import, layout, or lowering failure."

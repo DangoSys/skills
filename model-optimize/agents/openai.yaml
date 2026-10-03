@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball Model Optimization"
+  short_description: "Design model layouts, bank reuse, and chip scheduling"
+  default_prompt: "Use $model-optimize to design or optimize a Buckyball model recipe for a target chip."
