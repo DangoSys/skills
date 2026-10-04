@@ -51,13 +51,13 @@ Use an explicit testbench drive/sample schedule. Falling-edge stimulus is a sche
 
 ## Build and Run
 
-Register the IP in `verify/uvm/ip.toml`. Add it to a chip's `[uvm].ips` only when it belongs in that chip's default regression. The current loader discovers resource `*.f` files, uses `<stem>_tb` as each top, and selects `protocol_test`; align the artifacts with these conventions.
+Register the IP in the project-owned `arch/uvm.toml`. Keep design registration and DUT-specific verification outside the generic `verify` framework. Add it to a chip's `[uvm].ips` only when it belongs in that chip's default regression. The current loader discovers resource `*.f` files, uses `<stem>_tb` as each top, and selects `protocol_test`; align the artifacts with these conventions.
 
 Filelists use `@VERIFY@`, `@RESOURCES@`, and `@RTL@`. Use project `bbdev_uvm_build(chip=..., ip=...)` and `bbdev_uvm_run(chip=..., ip=...)` MCP tools and poll returned tasks to completion. Diagnose service failures separately from compile or RTL failures; do not silently substitute a private build flow. For coverage-only changes, reuse the existing simulation database through the repository's reporting implementation when RTL and stimulus are unchanged.
 
 ## Close Coverage, Then Stop
 
-1. Establish the exact parameter configuration, DUT instance scope, metrics, and target. For the current Bank workflow, the agreed code metrics are line, condition, and toggle, with a 100% target after justified exclusions. Keep testbench/protocol coverage distinct from DUT code coverage.
+1. Establish the exact parameter configuration, DUT instance scope, and verification purpose. Derive scenarios from interface invariants, identified failure risks, and observed faults. Respect explicitly agreed coverage targets; a Bank-specific 100% goal is not a default for every IP. Keep raw DUT metrics separate from testbench/protocol coverage, and do not grow scenarios or exclusion lists merely to improve a score.
 2. Keep generated SRAM models in separate split SystemVerilog files so their `coverage exclude_file` directives apply only to the memory models. Check that the report contains coverage data for the parent DUT and its intended child modules; missing metrics are not a coverage success.
 3. Inspect individual holes. Add or adjust stimulus for reachable behavior. Prefer adjusting existing scenarios over adding random iterations. Compare coverage before and after deleting potentially redundant stimulus; keep the deletion only when relevant coverage and checks remain intact.
 4. Waive only identified objects with a reason: constants, constraints of the legal-input contract, assertion-failure diagnostics outside the normal functional coverage scope, or conditions proven unreachable by the control structure. Distinguish environmental assumptions from design invariants. Do not waive an item simply because the current test never exercises it, and never exclude logic by generated names such as `_GEN`.
