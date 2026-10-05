@@ -65,7 +65,7 @@ After Stage 1 is green:
   lit files per layer; do not mix them.
 - MLIR tests live under `examples/balls/<ball>/workloads/mlir_tests/` (not under
   the chip); FileCheck plus an mlirtest ELF.
-- New ctest / mlirtest → add to the chip BEMU `workloads-elf.toml` + `workloads-pk.toml`.
+- New ctest / mlirtest → add the bare-metal artifact to the chip BEMU `workloads-bare.toml` and the Linux program to `kernel/workloads.toml`; `workloads-linux.toml` selects the firmware boot ELF.
 
 **Gate:** the MLIR test must pass on **BEMU** (run the mlirtest ELF). Do not
 touch RTL before this passes.
