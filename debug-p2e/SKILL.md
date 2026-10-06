@@ -18,10 +18,7 @@ BEMU and Verilator gates before using a full model to investigate operator seman
   `rtcfg`, runtime libraries, and executable from the same case. Use a fresh task
   output directory; never clean another task's case.
   After interruption, check live processes and saved checkpoints before retrying.
-  For a stopped case with a routed DCP and bitstream, the explicit
-  `--resume-post-route` build option preserves completed synthesis/PNR and reruns
-  the SDK's timing collection/runtime-data stages. Do not mark a partial case
-  successful or resume over a still-running builder.
+  Do not mark a partial case successful.
   With a validated matching case, explicit `--reuse-runtime` runs its existing
   executable, rtcfg, and libraries without rebuilding. The complete case and diff
 capability are checked before queueing. Keep its trace-protocol marker unchanged;
