@@ -59,10 +59,25 @@ For grouped-query attention, group query rows by KV head before QK and PV rather
 than materializing one KV copy per query head. Validate row order, softmax axes,
 cache updates, and accumulation order independently.
 
+Check the arithmetic inside a broadcast before replacing it with a view. Adding
+positive zero can change signed zero, NaNs, and floating-point flags. Preserve that
+operation on the unique source, then repeat its descriptor with a zero batch stride.
+Validate operand order, offsets, noncontiguous strides, and all rounding modes.
+
 Compare worker-count candidates on identical submitted work and report private SRAM
 alongside latency. A serial fused subgraph does not use additional workers merely
 because successive calls rotate between them. Keep measured simulator gains separate
 from projected FPGA or chip gains.
+
+Measure mapping, prefault, worker initialization, and execution separately when
+changing controller ownership. A thread per controller can share read-only weights
+without copying page tables, but each controller still needs independent runtime
+and workspace state. Bind helper tasks to their controller's arena and release
+resources on that controller before joining it. Validate concurrent initialization,
+real DMA, shutdown, and reinitialization before timing the model.
+When freezing kernels for an execution-only comparison, rebuild every caller that
+uses changed public structures. Inline indexing of a worker array depends on its
+element size even when the called method signatures remain unchanged.
 
 Inspect the final temporary tensor sizes as well as the Python operation. A dilated
 window may materialize every intermediate position before selecting its taps.
@@ -75,6 +90,11 @@ Deduplication can change the argument list even when a cropped prior artifact pa
 numerical tests. Match the runtime task protocol, simulator, program, configuration,
 and weights before timing a candidate. Reject an ABI mismatch rather than interpreting
 its early exit as a numerical or scheduling failure.
+
+When cores use different bank geometries, compile dispatchers from the same source
+with each core's actual parameters. Bind kernel references to the matching instance
+explicitly; a small shape can hide a wrong runtime library. Validate borrowed tensor
+views using real offsets and row strides instead of assuming contiguous storage.
 
 Preserve raw output precision in difftest artifacts. A matching PCM16 waveform does
 not establish bitwise equality of the underlying FP32 samples. Save the actual decoder
@@ -120,6 +140,12 @@ experiments without turning an isolated example into a universal rule.
 
 Keep preparation, packaging, and evaluation shared where their contracts match.
 Put chip weight permutation, physical padding, and layout choices in `permute/`.
+
+Compare stage parameter payloads before reserving duplicate model storage. Bind
+identical read-only weights to one canonical resource path while retaining each
+use's byte offset and layout. Check the actual RAX resources and runtime mappings;
+deduplicating package bytes alone does not remove repeated mapping and prefault work.
+
 Before adding a high-rank activation transpose, establish whether it is necessary;
 align producer/consumer layouts and permute weights offline when that removes it.
 
@@ -153,6 +179,13 @@ configuration, preserve and independently validate required smaller configuratio
 Use distinct configuration/build identities as needed and share implementations where
 semantics match. More capacity does not guarantee fewer cycles; select defaults from
 measured results and the user's constraints.
+
+For task plans, derive workspace bounds from actual allocation lifetimes and the
+runtime allocator. Keep an allocation alive while any borrowed view still uses its
+base pointer. Reserve storage for inputs and materialized exchange targets; computed
+results and views need descriptors. If prefill only consumes the last valid token's
+logits, select that row before per-row normalization and the LM projection, preserving
+the original quantization and reduction order.
 
 ## Validate the design
 
