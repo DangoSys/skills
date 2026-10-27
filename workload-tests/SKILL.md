@@ -1,6 +1,6 @@
 ---
 name: workload-tests
-description: Design, add, reorganize, or review Buckyball Ball, core, and chip workload tests and their regression manifests.
+description: Design, add, reorganize, or review Buckyball Ball, thread, and chip workload tests and their regression manifests.
 ---
 
 # Workload Tests
@@ -16,8 +16,8 @@ explicit.
 | CTest | One Ball instruction or a small direct consumer | About 32x16 | Verilator and BEMU |
 | BallOp MLIR | One Ball dialect operation and its lowering | Small | Verilator and BEMU |
 | BankOp MLIR | Bank SSA allocation, mapping, and at least one bank's worth of meaningful work | Active bank geometry | BEMU |
-| Core | Integration of the Balls belonging to one core | Small, realistic composition | BEMU and Verilator where supported |
-| Chip | Cross-core, memory-domain, or multi-Ball integration | Small, realistic composition | BEMU; Verilator where supported |
+| Thread | Integration of the Balls belonging to one thread | Small, realistic composition | BEMU and Verilator where supported |
+| Chip | Cross-thread, memory-domain, or multi-Ball integration | Small, realistic composition | BEMU; Verilator where supported |
 
 Do not call a test `full_bank` merely because it is a BankOp. Name the operation,
 layout, data pattern, or boundary it proves, for example
@@ -44,7 +44,7 @@ layout, data pattern, or boundary it proves, for example
 
 - Geometry and topology come from the active chip's `chip.pb` and generated
   headers (`params.h`, `topology.h`), never from fixed bank depths, widths,
-  core counts, or shared-bank bases in a test.
+  thread counts, or shared-bank bases in a test.
 - Derive row/lanes/counts from generated parameters where the Ball ISA does not
   fix them. ISA-fixed dimensions such as a 16x16 array may remain explicit.
 - A test must continue to mean the same thing after valid chip parameter
@@ -53,24 +53,24 @@ layout, data pattern, or boundary it proves, for example
 
 ## Multicore chip tests
 
-- Build one workload ELF. It dispatches with `bb_get_core_id()`; the framework
+- Build one workload ELF. It dispatches with `bb_get_thread_id()`; the framework
   does not know role names or choose a leader after boot.
-- `bb_get_core_id()` returns `{tile, core}`. Tiles are homogeneous; core-level
-  paths may differ within a tile.
+- `bb_get_thread_id()` returns `{core, thread}`. Cores are homogeneous; thread-level
+  paths may differ within a core.
 - Put heterogeneous paths in separate C files in one workload directory. The
-  `*-main.cpp` file only owns shared state and dispatches by `{tile, core}`.
-- Use the shared bare-metal/Linux multicore runtime. Core 0 performs the
+  `*-main.cpp` file only owns shared state and dispatches by `{core, thread}`.
+- Use the shared bare-metal/Linux multicore runtime. Thread 0 performs the
   existing level-one boot and reports completion; do not recreate a parallel
   boot protocol in individual tests.
 
 ## Registration and regression
 
-- Workload names always begin with `<chip>-<core>-`. The two naming entry
-  points are `buckyball_ctest_name(core, test_id)`, which produces
-  `<chip>-<core>-ctest-<test_id>`, and
-  `buckyball_mlirtest_name(core, test_id)`, which produces
-  `<chip>-<core>-mlirtest-<test_id>`. Each test owns its `test_id`.
-  For example, CTest IDs may be `mvin_2d`, `core-conv_pipeline`, or
+- Workload names always begin with `<chip>-<thread>-`. The two naming entry
+  points are `buckyball_ctest_name(thread, test_id)`, which produces
+  `<chip>-<thread>-ctest-<test_id>`, and
+  `buckyball_mlirtest_name(thread, test_id)`, which produces
+  `<chip>-<thread>-mlirtest-<test_id>`. Each test owns its `test_id`.
+  For example, CTest IDs may be `mvin_2d`, `thread-conv_pipeline`, or
   `chip-shared_transpose`; MLIR IDs may be `ball_transpose_i8` or
   `bank_quant_i32_pack16`. Do not add local name-formatting helpers.
 - Every active test must be registered in its local CMake file and built by its
@@ -88,7 +88,7 @@ layout, data pattern, or boundary it proves, for example
   Do not use `search_path`, paths in the manifest, per-workload `pk`/trace
   flags. Backend selection and tracing belong to the runner.
 - Add small CTests and BallOps to Verilator manifests. Add BankOps to BEMU
-  manifests. Add core/chip tests to every backend that actually supports that
+  manifests. Add thread/chip tests to every backend that actually supports that
   chip; do not claim coverage through stale or non-existent artifacts.
 - After a rename or move, verify every manifest file name has exactly one match
   in the freshly synchronized output.

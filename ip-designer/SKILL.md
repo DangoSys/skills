@@ -23,7 +23,7 @@ Distinguish storage organization from access semantics. A scratchpad is not syno
 
 ## Package and Export
 
-The current IP verification loader resolves `arch/src/main/scala/framework/mem-core/<ip>/`. An IP there owns:
+The IP verification loader resolves each IP through `[paths]` in `arch/uvm.toml`. Shared IPs live in `arch/src/main/scala/framework/ip/<ip>/`; module-specific IPs live under their owning module. Each IP owns:
 
 - `build.sc`: independent Mill build and the selected main class.
 - `src/main/scala/`: Chisel interfaces, implementation, parameters, and `Emit.scala`.

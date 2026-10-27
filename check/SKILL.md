@@ -7,7 +7,7 @@ description: Validate Buckyball Ball registration consistency. Use when users as
 
 Call MCP tool `validate(chip=..., balldomain?=...)`. Default `chip` is `toy`.
 
-The tool resolves the selected BallDomain from the chip's generated topology. Registrations live under `examples/cores/<core>/configs/balldomains/`, not under the chip directory. The current implementation requires the chip to resolve to one unique topology core; for heterogeneous chips, validate each core's BallDomain explicitly. Pass a stem such as `default` or a `.toml` path only when selecting a non-default domain.
+The tool resolves the selected BallDomain from the chip's generated topology. Registrations live under `examples/threads/<thread>/configs/balldomains/`, not under the chip directory. The current implementation requires the chip to resolve to one unique topology thread; for heterogeneous chips, validate each thread's BallDomain explicitly. Pass a stem such as `default` or a `.toml` path only when selecting a non-default domain.
 
 Report the tool's pass/fail result for:
 

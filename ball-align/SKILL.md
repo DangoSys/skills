@@ -51,7 +51,7 @@ match. Then write the **BEMU model** bit-for-bit against that C reference. Both
 share the same legal/illegal checks and fail hard (panic/assert) — no soft defaults.
 
 - Small tests: short shapes, hand vectors, edge and illegal inputs.
-- Bank tests: `iter≈BANK_LINES`, `srand`/`rand`; soft numeric may report LOSS — **BEMU only**.
+- Bank tests: `iter≈THREAD_MEM_BANK_ENTRIES`, `srand`/`rand`; soft numeric may report LOSS — **BEMU only**.
 
 **Gate:** the C test must pass on BEMU (`bbdev_bemu_sim` / `bbdev_bemu_batch`).
 Do not write the compiler or RTL before this passes.

@@ -24,7 +24,7 @@ instructions still describe the repository. Preserve unrelated work and existing
 - Chip recipes: `stack/models/archs/buckyball/<chip>/<model>/`; `examples/models/`
   links to this directory.
 - Chip topology/configuration: `examples/chips/<chip>/configs/`.
-- Operator implementations: `examples/balls/` and `examples/cores/`.
+- Operator implementations: `examples/balls/` and `examples/threads/`.
 
 ## Workflow and gates
 
