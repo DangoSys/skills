@@ -20,11 +20,13 @@ an existing model for a new chip adaptation.
 Read current working implementations and recipes instead of assuming old README
 instructions still describe the repository. Preserve unrelated work and existing models.
 
-- Shared preparation, packaging, and evaluation: `stack/models/models/<model>/`.
-- Chip recipes: `stack/models/archs/buckyball/<chip>/<model>/`; `examples/models/`
-  links to this directory.
-- Chip topology/configuration: `examples/chips/<chip>/configs/`.
-- Operator implementations: `examples/balls/` and `examples/threads/`.
+- Shared preparation, the model definition, and evaluation:
+  `stack/models/models/<model>/`; see [model-recipe](../model-recipe/SKILL.md)
+  for the model files, importers and frontend steps.
+- Design recipes: `stack/models/archs/buckyball/<design>/<model>/`; reference
+  recipes for x86, nv and gemmini: `stack/models/archs/<arch>/<model>/`.
+- Design topology/configuration: `examples/designs/<design>/configs/`.
+- Operator implementations: `examples/prefab/balls/` and `examples/prefab/threads/`.
 
 ## Workflow and gates
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Buckyball Model Recipe"
+  short_description: "Write model files, importers and frontend passes of a recipe"
+  default_prompt: "Use $model-recipe to define a model under stack/models/models and import it in a recipe."
