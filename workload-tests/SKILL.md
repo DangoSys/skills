@@ -1,12 +1,12 @@
 ---
 name: workload-tests
-description: Design, add, reorganize, or review Buckyball Ball, thread, and chip workload tests and their regression manifests.
+description: Design, add, reorganize, or review Buckyball Ball, thread, and device workload tests and their regression manifests.
 ---
 
 # Workload Tests
 
 Use this skill for tests under `examples/*/workloads`, `bb-tests/workloads`,
-and chip regression manifests. Keep the test's layer, scale, backend, and name
+and device regression manifests. Keep the test's layer, scale, backend, and name
 explicit.
 
 ## Test layers
@@ -17,7 +17,7 @@ explicit.
 | BallOp MLIR | One Ball dialect operation and its lowering | Small | Verilator and BEMU |
 | BankOp MLIR | Bank SSA allocation, mapping, and at least one bank's worth of meaningful work | Active bank geometry | BEMU |
 | Thread | Integration of the Balls belonging to one thread | Small, realistic composition | BEMU and Verilator where supported |
-| Chip | Cross-thread, memory-domain, or multi-Ball integration | Small, realistic composition | BEMU; Verilator where supported |
+| Device | Cross-thread, memory-domain, or multi-Ball integration | Small, realistic composition | BEMU; Verilator where supported |
 
 Do not call a test `full_bank` merely because it is a BankOp. Name the operation,
 layout, data pattern, or boundary it proves, for example
@@ -42,16 +42,16 @@ layout, data pattern, or boundary it proves, for example
 
 ## Parameters and configuration
 
-- Geometry and topology come from the active chip's `chip.pb` and generated
+- Geometry and topology come from the active device's `device.pb` and generated
   headers (`params.h`, `topology.h`), never from fixed bank depths, widths,
   thread counts, or shared-bank bases in a test.
 - Derive row/lanes/counts from generated parameters where the Ball ISA does not
   fix them. ISA-fixed dimensions such as a 16x16 array may remain explicit.
-- A test must continue to mean the same thing after valid chip parameter
+- A test must continue to mean the same thing after valid device parameter
   changes. Reject unsupported geometries at configuration time; do not clamp,
   silently shrink, or provide a fallback.
 
-## Multicore chip tests
+## Multicore device tests
 
 - Build one workload ELF. It dispatches with `bb_get_thread_id()`; the framework
   does not know role names or choose a leader after boot.
@@ -65,13 +65,13 @@ layout, data pattern, or boundary it proves, for example
 
 ## Registration and regression
 
-- Workload names always begin with `<chip>-<thread>-`. The two naming entry
+- Workload names always begin with `<device>-<thread>-`. The two naming entry
   points are `buckyball_ctest_name(thread, test_id)`, which produces
-  `<chip>-<thread>-ctest-<test_id>`, and
+  `<device>-<thread>-ctest-<test_id>`, and
   `buckyball_mlirtest_name(thread, test_id)`, which produces
-  `<chip>-<thread>-mlirtest-<test_id>`. Each test owns its `test_id`.
+  `<device>-<thread>-mlirtest-<test_id>`. Each test owns its `test_id`.
   For example, CTest IDs may be `mvin_2d`, `thread-conv_pipeline`, or
-  `chip-shared_transpose`; MLIR IDs may be `ball_transpose_i8` or
+  `device-shared_transpose`; MLIR IDs may be `ball_transpose_i8` or
   `bank_quant_i32_pack16`. Do not add local name-formatting helpers.
 - Every active test must be registered in its local CMake file and built by its
   layer's aggregate target. A source present on disk but absent from an
@@ -88,8 +88,8 @@ layout, data pattern, or boundary it proves, for example
   Do not use `search_path`, paths in the manifest, per-workload `pk`/trace
   flags. Backend selection and tracing belong to the runner.
 - Add small CTests and BallOps to Verilator manifests. Add BankOps to BEMU
-  manifests. Add thread/chip tests to every backend that actually supports that
-  chip; do not claim coverage through stale or non-existent artifacts.
+  manifests. Add thread/device tests to every backend that actually supports that
+  device; do not claim coverage through stale or non-existent artifacts.
 - After a rename or move, verify every manifest file name has exactly one match
   in the freshly synchronized output.
 

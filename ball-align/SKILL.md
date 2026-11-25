@@ -64,8 +64,8 @@ After Stage 1 is green:
 - Lower in order: bank Op → assign-physical-banks → ball Op → instruction. Keep
   lit files per layer; do not mix them.
 - MLIR tests live under `examples/balls/<ball>/workloads/mlir_tests/` (not under
-  the chip); FileCheck plus an mlirtest ELF.
-- New ctest / mlirtest → add the bare-metal artifact to the chip BEMU `workloads-bare.toml` and the Linux program to `kernel/workloads.toml`; `workloads-linux.toml` selects the firmware boot ELF.
+  the device); FileCheck plus an mlirtest ELF.
+- New ctest / mlirtest → add the bare-metal artifact to the device BEMU `workloads-bare.toml` and the Linux program to `kernel/workloads.toml`; `workloads-linux.toml` selects the firmware boot ELF.
 
 **Gate:** the MLIR test must pass on **BEMU** (run the mlirtest ELF). Do not
 touch RTL before this passes.
@@ -92,6 +92,8 @@ After Stage 3 is green:
 
 - Sync integration tests (real consumers; update on contract changes).
 - UVM: stimulus/scoreboard on the same contract — only after RTL small tests are green.
+  The Ball runs alone from its `configs/default.toml`: `bbdev uvm --run '--ball <ball>'`
+  (a design's Ball: `--ball <design>/balls/<ball>`); no `--config`/`--device`.
 - PPA: area/power/timing from the DC flow; PMC from `bdb.ndjson` /
   `bdb.log` `pmctrace` (`elapsed`).
 

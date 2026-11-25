@@ -7,7 +7,7 @@ description: Apply the repository's programming rules during implementation or c
 
 Apply these rules:
 
-1. **Keep It Simple (KISS).** Prefer direct, readable code. Do not introduce a pile of helpers, wrappers, abstractions, or indirection for a one-off operation.
+1. **Keep It Simple and Stupid (KISS).** Prefer direct, readable code. Do not introduce a pile of helpers, wrappers, abstractions, or indirection for a one-off operation.
 2. **No fallback.** Do not silently recover from an unexpected state, invent a default, truncate data, or continue with partial results. Raise an error immediately when behavior is outside the contract.
 3. **No unnecessary defensive programming.** Do not add checks for conditions that the type system, caller contract, or an operation already guarantees. If the operation naturally fails and exits, let it fail. Add a check only when it changes the error contract or prevents destructive side effects.
 4. **Break compatibility decisively.** Do not preserve obsolete APIs, aliases, migration shims, dual formats, or old behavior unless compatibility is explicitly part of the task. Make the clean architectural change and update its callers.

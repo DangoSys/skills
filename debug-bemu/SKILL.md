@@ -3,9 +3,11 @@ name: debug-bemu
 description: Diagnose Buckyball BEMU failures or numerical mismatches against C, PyTorch, or another declared reference. Use for emulator semantics and compiled-model execution, not RTL timing.
 ---
 
+Follow `simulation-ladder` before starting or continuing a run.
+
 # BEMU Debugging
 
-Confirm the exact chip, executable/model artifact, input, and reference. Read the
+Confirm the exact device, executable/model artifact, input, and reference. Read the
 active ISA/configuration and reproduce the first failure through project tools.
 Build success, process startup, and a running CPU are not correctness results.
 
@@ -43,7 +45,7 @@ Use BEMU to localize semantic differences and excessive CPU/lowering work, then
 confirm a hardware performance hypothesis with `$debug-performance` on RTL/P2E.
 
 Explicit model-only `--reuse-simulator` can run a previously built matching
-simulator during model iteration. Check its chip geometry and instruction semantics;
+simulator during model iteration. Check its device geometry and instruction semantics;
 rebuild when either changes. A cached simulator must not hide a semantic regression.
 
 Prefer project `bbdev_*` MCP tools and poll terminal results. If the user authorizes

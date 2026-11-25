@@ -3,16 +3,18 @@ name: debug-p2e
 description: Diagnose Buckyball P2E bitstream/runtime builds, FPGA loading, Linux boot, workload failures, and hardware output differences. Use for P2E execution after emulator and small RTL gates are green.
 ---
 
+Follow `simulation-ladder` before starting or continuing a run.
+
 # P2E Debugging
 
-Identify the chip/configuration, RTL revision, diff capability, bitstream, complete
+Identify the device/configuration, RTL revision, diff capability, bitstream, complete
 runtime case, logical image, firmware ELF/hex, and FPGA location. Confirm focused
 BEMU and Verilator gates before using a full model to investigate operator semantics.
 
 ## Locate the red stage
 
 - **Build/environment:** preserve the first Nix/Rust/VVAC/Vivado error. Check source
-  inclusion, generated chip artifacts, selected RTL directory, and dependencies.
+  inclusion, generated device artifacts, selected RTL directory, and dependencies.
   Do not classify missing files or tools as accelerator numerical failures.
 - **Bitstream/runtime:** bitstream existence alone is insufficient. Verify matching
   `rtcfg`, runtime libraries, and executable from the same case. Use a fresh task

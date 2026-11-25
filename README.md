@@ -14,12 +14,13 @@ npx skills add DangoSys/skills
 | Skill | Use |
 |-------|-----|
 | `ball-align` | Align a Ball across ctest / bemu / compiler / MLIR / RTL / UVM to one contract |
-| `chip-designer` | Lead a new chip: topology, subgraph cut, contracts; do not implement cores |
+| `device-designer` | Lead a new device: topology, subgraph cut, contracts; do not implement cores |
 | `ip-designer` | Develop reusable IP: Chisel hierarchy, shared parameters, top export, UVM reuse, and coverage closure |
 | `check` | Ball registration consistency check |
 | `model-port` | Coordinate model integration, regressions, and complete P2E validation |
-| `model-optimize` | Design chip-specific layouts, bank reuse, quantization, and scheduling |
+| `model-optimize` | Design device-specific layouts, bank reuse, quantization, and scheduling |
 | `debug-compiler` | Model import, layouts, MLIR/bank lowering, and compiler failures |
+| `simulation-ladder` | Which simulator to use, and the limits on every run |
 | `debug-bemu` | Emulator/model correctness against a declared reference |
 | `debug-verilator` | Small RTL failures: diff first, then itrace/mtrace |
 | `debug-p2e` | P2E build, runtime, boot, and hardware workload failures |

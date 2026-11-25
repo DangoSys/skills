@@ -3,9 +3,11 @@ name: debug-verilator
 description: Diagnose Buckyball small-workload RTL failures, hangs, or BEMU/Verilator differences using diff, itrace, and mtrace. Use after the corresponding BEMU contract is green.
 ---
 
+Follow `simulation-ladder` before starting or continuing a run.
+
 # Verilator Debugging
 
-Use a small deterministic workload under the intended chip configuration. Confirm
+Use a small deterministic workload under the intended device configuration. Confirm
 its build and BEMU result before investigating RTL. Follow `$ball-align` for fixes
 that span ISA, emulator, compiler, RTL, or UVM.
 

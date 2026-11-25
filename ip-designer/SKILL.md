@@ -1,6 +1,6 @@
 ---
 name: ip-designer
-description: Design, implement, and verify reusable Buckyball hardware IP, including Chisel hierarchy, shared parameters, verification-top RTL export, common UVM components, and coverage closure. Use for IP work such as AXI, Bank, and BankSet; use chip-designer for chip topology and ball-align for Ball semantics across software and hardware.
+description: Design, implement, and verify reusable Buckyball hardware IP, including Chisel hierarchy, shared parameters, verification-top RTL export, common UVM components, and coverage closure. Use for IP work such as AXI, Bank, and BankSet; use device-designer for device topology and ball-align for Ball semantics across software and hardware.
 ---
 
 # Buckyball IP Design
@@ -23,7 +23,7 @@ Distinguish storage organization from access semantics. A scratchpad is not syno
 
 ## Package and Export
 
-The IP verification loader resolves each IP through `[paths]` in `arch/uvm.toml`. Shared IPs live in `arch/src/main/scala/framework/ip/<ip>/`; module-specific IPs live under their owning module. Each IP owns:
+The IP verification loader resolves each IP through `[paths]` in `arch/uvm.toml`. Shared IPs live in `arch/src/main/scala/generic/<ip>/`; module-specific IPs live under their owning module. Each IP owns:
 
 - `build.sc`: independent Mill build and the selected main class.
 - `src/main/scala/`: Chisel interfaces, implementation, parameters, and `Emit.scala`.
@@ -51,9 +51,9 @@ Use an explicit testbench drive/sample schedule. Falling-edge stimulus is a sche
 
 ## Build and Run
 
-Register the IP in the project-owned `arch/uvm.toml`. Keep design registration and DUT-specific verification outside the generic `verify` framework. Add it to a chip's `[uvm].ips` only when it belongs in that chip's default regression. The current loader discovers resource `*.f` files, uses `<stem>_tb` as each top, and selects `protocol_test`; align the artifacts with these conventions.
+Register the IP in the project-owned `arch/uvm.toml`. Keep design registration and DUT-specific verification outside the generic `verify` framework. Add it to a device's `[uvm].ips` only when it belongs in that device's default regression. The current loader discovers resource `*.f` files, uses `<stem>_tb` as each top, and selects `protocol_test`; align the artifacts with these conventions.
 
-Filelists use `@VERIFY@`, `@RESOURCES@`, and `@RTL@`. Use project `bbdev_uvm_build(chip=..., ip=...)` and `bbdev_uvm_run(chip=..., ip=...)` MCP tools and poll returned tasks to completion. Diagnose service failures separately from compile or RTL failures; do not silently substitute a private build flow. For coverage-only changes, reuse the existing simulation database through the repository's reporting implementation when RTL and stimulus are unchanged.
+Filelists use `@VERIFY@`, `@RESOURCES@`, and `@RTL@`. Use project `bbdev_uvm_build(device=..., ip=...)` and `bbdev_uvm_run(device=..., ip=...)` MCP tools and poll returned tasks to completion. Diagnose service failures separately from compile or RTL failures; do not silently substitute a private build flow. For coverage-only changes, reuse the existing simulation database through the repository's reporting implementation when RTL and stimulus are unchanged.
 
 ## Close Coverage, Then Stop
 

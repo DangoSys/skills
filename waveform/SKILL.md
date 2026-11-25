@@ -11,7 +11,7 @@ Waveforms are a last resort for a specific timing question those traces cannot
 answer. When the user explicitly requests waveform analysis, perform it directly.
 
 1. Locate a `.vcd` or `.fst` under the simulation log directory and open it with `open_waveform(file_path=...)`.
-2. Call `list_signals` before reading a path. Pass `recursive=true` or `recursive=false` explicitly; do not depend on the tool default. Signal hierarchy and Chisel-generated names vary by chip and build.
+2. Call `list_signals` before reading a path. Pass `recursive=true` or `recursive=false` explicitly; do not depend on the tool default. Signal hierarchy and Chisel-generated names vary by device and build.
 3. Use `find_conditional_events(waveform_id=..., condition=..., start_time_index?=..., end_time_index?=..., limit?=...)` for handshakes and edges. Use `find_signal_events` with the same time-index parameter names for transitions. Use `read_signal` for exact values and `get_signal_info` for widths.
 4. Close the waveform with `close_waveform` when analysis is complete.
 

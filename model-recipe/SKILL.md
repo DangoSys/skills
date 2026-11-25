@@ -9,7 +9,7 @@ A model is defined once under `stack/models/models/<model>/`; every recipe that
 compiles it (`archs/{x86,nv,gemmini}/<model>`, their `origin/`, and
 `archs/buckyball/<design>/<model>`) imports that definition and adds only its
 own frontend steps. Use [model-port](../model-port/SKILL.md) for the end-to-end
-port and [model-optimize](../model-optimize/SKILL.md) for chip design.
+port and [model-optimize](../model-optimize/SKILL.md) for device design.
 
 ## Model files
 

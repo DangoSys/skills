@@ -9,7 +9,7 @@ Locate the first failing stage: model rewrite, graph import/grouping, quantizati
 layout, dialect verification, bank lowering/allocation, LLVM IR, or machine code.
 Retain the exact command, input graph, target configuration, and first diagnostic.
 
-- Verify the original model and chip rewrite separately. Quantization must not
+- Verify the original model and device rewrite separately. Quantization must not
   hide a changed preprocessing, pooling, bias, reduction, or flattening contract.
 - Follow parameter identity/order through import and packing; inspect shapes,
   strides, dtypes, scales, and producer/consumer layouts at the failing boundary.

@@ -3,13 +3,15 @@ name: debug-performance
 description: Analyze and optimize Buckyball model performance using FPGA end-to-end cycles, layer timing, operation lengths, bank reuse, and measured bottlenecks.
 ---
 
+Follow `simulation-ladder` before starting or continuing a run.
+
 # Performance Debugging
 
 Establish the requested performance metric first. Model performance normally means
 **FPGA-measured end-to-end forward cycles**, including CPU work, accelerator work,
 and data movement. Host simulation duration, boot time, compilation time, and BEMU
 cycles do not establish this result. Keep the same checkpoint, input, inference
-boundary, chip configuration, and tracing mode when comparing designs.
+boundary, device configuration, and tracing mode when comparing designs.
 
 Report FPGA cycles by default for a model optimization. If the user asks how long
 a P2E run takes, report host wall-clock duration separately: model RUN-to-PASS,
@@ -32,8 +34,8 @@ the baseline-relative change, with bitstream/image identities and correctness.
 2. Separate CPU packing, quantization, and copies from DMA, unfolding, compute,
    and dependency stalls. BEMU helps expose CPU work and excessive lowering; use
    RTL/P2E evidence for accelerator timing and utilization.
-3. Decode instructions with the selected chip's generated ISA. `funct7` meanings
-   are chip-local. Bank trace events are writes, not a timing percentage or
+3. Decode instructions with the selected device's generated ISA. `funct7` meanings
+   are device-local. Bank trace events are writes, not a timing percentage or
    necessarily one event per instruction. Map PCs to graph regions before drawing
    conclusions from counts.
 4. Inspect effective rows and useful work per operation, SRAM traffic and reuse,

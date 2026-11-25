@@ -1,11 +1,11 @@
 ---
 name: model-optimize
-description: Design or optimize Buckyball model recipes for target chips, specializing quantization, offline layouts, bank reuse, operator mapping, and scheduling. Use during model-port's design step or for an existing model design.
+description: Design or optimize Buckyball model recipes for target devices, specializing quantization, offline layouts, bank reuse, operator mapping, and scheduling. Use during model-port's design step or for an existing model design.
 ---
 
 # Model Optimization
 
-Own the chip-specific model design. Reuse the shared framework and specialize the
+Own the device-specific model design. Reuse the shared framework and specialize the
 recipe to the backend. Change the framework when a concrete design exposes a
 reusable correctness or performance gap. Read the target's active bank geometry,
 ISA, execution conventions, and existing recipes before selecting the design.
@@ -22,7 +22,7 @@ and resource constraints. Include the relevant input lengths, concurrency, and
 execution phases; one short request does not establish a general design optimum.
 
 Work from workload and operator/dataflow requirements through subgraph partitioning,
-Core/Ball resources, tile composition, and chip/interconnect placement. Revisit an
+Core/Ball resources, tile composition, and device/interconnect placement. Revisit an
 earlier layer when later evidence changes its assumptions. Compare a small set of
 explained candidates rather than changing several layers at once.
 
@@ -67,7 +67,7 @@ Validate operand order, offsets, noncontiguous strides, and all rounding modes.
 Compare worker-count candidates on identical submitted work and report private SRAM
 alongside latency. A serial fused subgraph does not use additional workers merely
 because successive calls rotate between them. Keep measured simulator gains separate
-from projected FPGA or chip gains.
+from projected FPGA or device gains.
 
 Measure mapping, prefault, worker initialization, and execution separately when
 changing controller ownership. A thread per controller can share read-only weights
@@ -111,13 +111,13 @@ independent input view or copy before assembling results.
 
 Keep source-derived operation/byte counts, analytical estimates, BEMU host time,
 RTL cycles, and FPGA measurements distinct. Virtual clock settings and retired
-instruction rates do not establish equivalent chip throughput. A functional bank
+instruction rates do not establish equivalent device throughput. A functional bank
 model can compute final results directly while a separate calibrated model estimates
 target timing.
 
 Before comparing scheduling candidates by BEMU host time, repeat identical work
 across equivalent cores. Investigate schedule-dependent emulator overhead, including
-shared clocks and locks, before attributing a timing difference to the chip design.
+shared clocks and locks, before attributing a timing difference to the device design.
 
 Add a counter or analysis tool when a concrete question lacks observable evidence.
 Define its measured event, unit, scope, and overhead; reuse that tool across designs.
@@ -132,14 +132,14 @@ results; decision, limitations, and unresolved questions. Include failed candida
 Temporary unmaintained test sources may be removed after validation; retain the
 inputs, outputs, logs, and invocation needed to assess the result.
 
-Promote confirmed reusable methods into this skill. Keep model/chip-specific choices
+Promote confirmed reusable methods into this skill. Keep model/device-specific choices
 with the design and mark untested proposals as hypotheses. Update lessons from actual
 experiments without turning an isolated example into a universal rule.
 
 ## Layout and numerical contract
 
 Keep preparation, packaging, and evaluation shared where their contracts match.
-Put chip weight permutation, physical padding, and layout choices in `permute/`.
+Put device weight permutation, physical padding, and layout choices in `permute/`.
 
 Compare stage parameter payloads before reserving duplicate model storage. Bind
 identical read-only weights to one canonical resource path while retaining each
