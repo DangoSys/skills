@@ -21,10 +21,7 @@ BEMU and Verilator gates before using a full model to investigate operator seman
   output directory; never clean another task's case.
   After interruption, check live processes and saved checkpoints before retrying.
   Do not mark a partial case successful.
-  With a validated matching case, explicit `--reuse-runtime` runs its existing
-  executable, rtcfg, and libraries without rebuilding. The complete case and diff
-capability are checked before queueing. Keep its trace-protocol marker unchanged;
-  a legacy blocking case and a nonblocking case have different runtime contracts.
+  The workload command builds the host executable for the selected bitstream and its trace protocol.
 - **Board/loading:** check the selected FPGA and loading/runtime messages. Do not
   reprogram a board known to be running another task; resolve its ownership first.
 - **Boot/image:** inspect UART, boot hart count/DTB, image base address, Linux/rootfs,
